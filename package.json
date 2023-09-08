@@ -1,0 +1,36 @@
+{
+  "name": "retro_amazon_backend",
+  "version": "1.0.0",
+  "description": "We are building a MERN Fullstack mock amazon.com from the early days",
+  "main": "server.js",
+  "//": "Allows us to use modules with a normal .js file",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "//": "NEW RUN SCRIPTS BELOW ++++",
+    "//": "To run these do       npm run {script name}",
+    "start": "node server.js",
+    "nodemon": "nodemon server.js",
+    "nodemon.env": "nodemon -r dotenv/config server.js",
+    "//": "NEW RUN SCRIPTS ABOVE ++++"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tony-Cook55/Retro_Amazon_Backend.git"
+  },
+  "keywords": [
+    "Amazon",
+    "Shopping"
+  ],
+  "author": "Tony Cook",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Tony-Cook55/Retro_Amazon_Backend/issues"
+  },
+  "homepage": "https://github.com/Tony-Cook55/Retro_Amazon_Backend#readme",
+  "dependencies": {
+    "debug": "^4.3.4",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2"
+  }
+}

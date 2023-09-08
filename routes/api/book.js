@@ -1,0 +1,162 @@
+
+
+
+// I I I I I I I    IMPORTS   I I I I I I I 
+
+import express from "express";
+
+
+import debug from "debug";
+
+//Create a debug channel called app server
+const debugBook = debug("app:book");
+
+// I I I I I I I    IMPORTS   I I I I I I I 
+
+const router = express.Router();
+
+
+// An Array of book objects 
+const books = [
+  {"title":"Country Bears, The","author":"Vince Glader","publication_date":"10/25/1907","genre":"mystery","_id":1},
+  {"title":"Secret Things (Choses secrètes)","author":"Betteanne Copley","publication_date":"8/28/1978","genre":"non-fiction","_id":2},
+  {"title":"Fitna","author":"Heall Markham","publication_date":"5/31/1936","genre":"non-fiction","_id":3},
+  {"title":"Words, The","author":"Kelly Benech","publication_date":"11/9/1958","genre":"non-fiction","_id":4},
+  {"title":"Muppet Christmas: Letters to Santa, A","author":"Natala Amar","publication_date":"1/18/1914","genre":"non-fiction","_id":5}
+];
+
+
+//Making a route to see all the books    to see books type   http://localhost:3000/api/books/books-list
+router.get("/books-list", (req, res) => {
+  res.json(books); // calling our array of books
+  debugBook("Getting all the books");
+});
+
+
+
+
+//!!!!!!!!!!!!!!!!!!  SEARCHING BY _id //!!!!!!!!!!!!!!!!!!   http://localhost:3000/api/books/(_id of book)
+// Making another route Getting a book by their _id
+router.get("/:id", (req, res) => {   // the :id   makes a param variable that we pass in
+  const id = req.params.id;  // were are getting a request with the parameters a user puts for the .id
+  
+  // for every bookID return true when our _id is == to the id user enters
+  const getBookID = books.find(bookID => bookID._id == id)
+
+  // If users id == book show that book
+  if(getBookID){
+    res.status(200).send(getBookID);
+  }
+  else{ // Error message
+    res.status(404).send({message: `Book ${id} not found`});
+  }
+});
+//!!!!!!!!!!!!!!!!!!  SEARCHING BY _id //!!!!!!!!!!!!!!!!!!
+
+
+
+//```````````````````` UPDATE A BOOK //````````````````````
+// Update a book by the _id    updates can use a    put    or   post 
+router.put("/:id", (req, res) => {
+  const id = req.params.id; // getting the id from the user
+  const currentBook = books.find(bookID => bookID._id == id) // This looks 
+
+  // For this line to work you have to have the body parser thats up top MIDDLEWARE
+  const updatedBook = req.body;  // An .body is an object in updatedBook lets our body read the books id
+  
+  // If currentBook is true
+  if(currentBook){
+      for(const key in updatedBook){  // loops through the keys in the updated books (title, author, genre, etc)
+        if(currentBook[key] != updatedBook[key]){ // if the current books title is not == to the updated book 
+          currentBook[key] = updatedBook[key]; // go ahead and update it
+        }
+      }
+
+
+      // We will save the current book back into the array
+      const index = books.findIndex(bookID => bookID._id == id);
+      if(index != -1){
+        books[index] == currentBook; // saving book data back into the array
+      }
+
+      res.status(200).send(`Book ${id} updated`); // Success Message
+
+  }
+  else{ // ERROR MESSAGE
+    res.status(404).send({message: `Book ${id} not found`});
+  }
+
+
+
+});
+//```````````````````` UPDATE A BOOK //````````````````````
+
+
+
+
+
+
+// ++++++++++++++++ ADDING A NEW BOOK TO THE ARRAY ++++++++++++++++++
+
+router.post("/add", (req, res) => {
+  const newBook = req.body; // Getting the users data from the body like a form
+
+
+  // If there is a valid new book
+  if(newBook){
+
+      // This is adding a new id
+      const id = books.length + 1;  // gets the length of the array and counts them so it can +1 for new ID 
+      newBook._id = id; // Sets the newBooks _id to +1 after the last _id of books
+
+
+      books.push(newBook); // Pushing our new book data into our array
+
+
+      res.status(200).json({message: `Book ${newBook.title} added)`}); // SUCCESS MESSAGE
+  }
+  else{ // ERROR MESSAGE
+    res.status(400).json({message: "Error when adding a New Book"});
+  }
+
+
+
+})
+
+// ++++++++++++++++ ADDING A NEW BOOK TO THE ARRAY ++++++++++++++++++
+
+
+
+
+
+// -------------------- DELETING BOOK FROM ARRAY -------------------
+
+router.delete("/:id", (req, res) => {
+  const id = req.params.id; // gets the id from the users url
+
+  // Reads the _ids position in the array 
+  const index = books.findIndex(bookID => bookID._id == id);
+
+  if(index != -1){                                                           // our id we wrote
+    books.splice(index,1); // this is starting at what item and the amount of items (index, 1 item)
+    res.status(200).json({message: `Book ${id} deleted`});
+  }
+  else{
+    res.status(404).json({message: `Book ${id} Not Found`});
+  }
+
+
+
+});
+
+
+// -------------------- DELETING BOOK FROM ARRAY -------------------
+
+
+
+
+
+
+// Exports our object router and names it BookRouter for us to call in the server.js file
+export {router as BookRouter};
+
