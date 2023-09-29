@@ -1,156 +1,227 @@
 
 
-
 // I I I I I I I    IMPORTS   I I I I I I I 
 
+// npm i express
 import express from "express";
 
 
 import debug from "debug";
 
-//Create a debug channel called app server
-const debugBook = debug("app:book");
+//Create a debug channel called Book
+const debugBook = debug("app:Book"); // Messages will Appear in terminal
+
+
+// Imports all the functions from the database.js file 
+import { connect, getBooks, getBookById, updateBook, addBook, deleteBook } from "../../database.js";
 
 // I I I I I I I    IMPORTS   I I I I I I I 
+
+
 
 const router = express.Router();
 
 
-// An Array of book objects 
-const books = [
-  {"title":"Country Bears, The","author":"Vince Glader","publication_date":"10/25/1907","genre":"mystery","_id":1},
-  {"title":"Secret Things (Choses secrètes)","author":"Betteanne Copley","publication_date":"8/28/1978","genre":"non-fiction","_id":2},
-  {"title":"Fitna","author":"Heall Markham","publication_date":"5/31/1936","genre":"non-fiction","_id":3},
-  {"title":"Words, The","author":"Kelly Benech","publication_date":"11/9/1958","genre":"non-fiction","_id":4},
-  {"title":"Muppet Christmas: Letters to Santa, A","author":"Natala Amar","publication_date":"1/18/1914","genre":"non-fiction","_id":5}
-];
 
 
-//Making a route to see all the books    to see books type   http://localhost:3000/api/books/books-list
-router.get("/books-list", (req, res) => {
-  res.json(books); // calling our array of books
-  debugBook("Getting all the books");
+
+
+
+// ~~~~~~~~~~~~~~~~ FIND ALL BOOKS ~~~~~~~~~~~~~~~~ // http://localhost:3000/api/books/books-list
+
+//Making a route to see all the books    to see books type   
+router.get("/books-list", async (req, res) => {
+
+  try {
+
+    // Connects to the DB Using the connect Function
+    const dbConnected = await connect();
+
+    // Calls in the getBooks() Function finding all books
+    const allBooks = await getBooks();
+
+    // Success Message
+    res.status(200).json(allBooks);
+
+    debugBook("Success Got all the Books \n"); // Message Appears in terminal
+
+  } 
+  catch (err) { // Error Message
+    res.status(500).json({error: err.stack});
+  }
+
 });
+// ~~~~~~~~~~~~~~~~ FIND ALL BOOKS ~~~~~~~~~~~~~~~~ //
+
+
+
+
+
 
 
 
 
 //!!!!!!!!!!!!!!!!!!  SEARCHING BY _id //!!!!!!!!!!!!!!!!!!   http://localhost:3000/api/books/(_id of book)
 // Making another route Getting a book by their _id
-router.get("/:id", (req, res) => {   // the :id   makes a param variable that we pass in
-  const id = req.params.id;  // were are getting a request with the parameters a user puts for the .id
-  
-  // for every bookID return true when our _id is == to the id user enters
-  const getBookID = books.find(bookID => bookID._id == id)
+router.get("/:id", async (req, res) => {   // the :id   makes a param variable that we pass in
 
-  // If users id == book show that book
-  if(getBookID){
-    res.status(200).send(getBookID);
+  try {
+      // were are getting a request with the parameters a user puts for the .id
+      const bookId = req.params.id;  
+
+      // for every bookID return true when our _id is == to the id user enters
+      const getBookID = await getBookById(bookId);
+
+      // Success Message
+      res.status(200).json(getBookID);
+
+      debugBook(`Success Got Book's Id: ${bookId} \n`); // Message Appears in terminal
   }
-  else{ // Error message
-    res.status(404).send({message: `Book ${id} not found`});
+  catch (err) {
+    // Error Message
+    res.status(500).json({error: err.stack});
+    debugBook(`Error Book Id: ${bookId} Not Found \n`); // Message Appears in terminal
   }
+
 });
 //!!!!!!!!!!!!!!!!!!  SEARCHING BY _id //!!!!!!!!!!!!!!!!!!
 
 
 
-//```````````````````` UPDATE A BOOK //````````````````````
+
+
+
+
+
+
+// uuuuuuuuuuuuuuuuu UPDATE A BOOK uuuuuuuuuuuuuuuuu //   // http://localhost:3000/api/books/update/(_id of book)
 // Update a book by the _id    updates can use a    put    or   post 
-router.put("/:id", (req, res) => {
-  const id = req.params.id; // getting the id from the user
-  const currentBook = books.find(bookID => bookID._id == id) // This looks 
+router.put("/update/:id", async (req, res) => {
+
+   // getting the id from the user
+  const bookId = req.params.id;
 
   // For this line to work you have to have the body parser thats up top MIDDLEWARE
-  const updatedBook = req.body;  // An .body is an object in updatedBook lets our body read the books id
+  const updatedBookFields = req.body;  // An .body is an object in updatedBookFields lets our body read the books id
   
-  // If currentBook is true
-  if(currentBook){
-      for(const key in updatedBook){  // loops through the keys in the updated books (title, author, genre, etc)
-        if(currentBook[key] != updatedBook[key]){ // if the current books title is not == to the updated book 
-          currentBook[key] = updatedBook[key]; // go ahead and update it
-        }
-      }
 
-
-      // We will save the current book back into the array
-      const index = books.findIndex(bookID => bookID._id == id);
-      if(index != -1){
-        books[index] == currentBook; // saving book data back into the array
-      }
-
-      res.status(200).send(`Book ${id} updated`); // Success Message
-
-  }
-  else{ // ERROR MESSAGE
-    res.status(404).send({message: `Book ${id} not found`});
+  // If a user enters a number for price it changes it to a float not a string
+  if(updatedBookFields.price){
+    updatedBookFields.price = parseFloat(updatedBookFields.price);
   }
 
+
+  try {
+      // Calls the function and uses the users entered id and body params for the values to pass into function
+      const updateBook = await updateBook(bookId, updatedBookFields);
+
+      // If the book is updated once it will gain a property called modifiedCount if this is 1 its true
+      if(updateBook.modifiedCount == 1){
+        // Success Message
+        res.status(200).json({message: `Book ${bookId} updated`});
+        debugBook(`Book ${bookId} updated  \n`); // Message Appears in terminal
+      }
+      else{
+        // Error Message
+        res.status(400).json({error: `Book ${bookId} Not Found`});
+        debugBook(`Book ${bookId} Not Found  \n`); // Message Appears in terminal
+      }
+  } 
+  catch (err) {
+    res.status(500).json({error: err.stack});
+  }
 
 
 });
-//```````````````````` UPDATE A BOOK //````````````````````
+// uuuuuuuuuuuuuuuuu UPDATE A BOOK uuuuuuuuuuuuuuuuu //
 
 
 
 
 
 
-// ++++++++++++++++ ADDING A NEW BOOK TO THE ARRAY ++++++++++++++++++
-
-router.post("/add", (req, res) => {
-  const newBook = req.body; // Getting the users data from the body like a form
 
 
-  // If there is a valid new book
-  if(newBook){
-
-      // This is adding a new id
-      const id = books.length + 1;  // gets the length of the array and counts them so it can +1 for new ID 
-      newBook._id = id; // Sets the newBooks _id to +1 after the last _id of books
 
 
-      books.push(newBook); // Pushing our new book data into our array
+
+// +++++++++++++++++ ADDING A NEW BOOK +++++++++++++++++ //  http://localhost:3000/api/books/add
+
+router.post("/add", async (req, res) => {
+  
+  // Getting the users data from the body like a form
+  const newBook = req.body; 
 
 
-      res.status(200).json({message: `Book ${newBook.title} added)`}); // SUCCESS MESSAGE
+    // If a user enters a number for price it changes it to a float not a string
+    if(newBook.price){
+      newBook.price = parseFloat(newBook.price);
+    }
+
+
+  try {
+      // Adds the users input from the body and plugs it into the addBook Function
+      const dbNewBook = await addBook(newBook);
+
+      // If user adding a new book is true it wil lbe known as acknowledged
+      if(dbNewBook.acknowledged == true){
+        // Success Message
+        res.status(200).json({message: `Book ${newBook.title} Added With An Id of ${dbNewBook.insertedId}`});
+        debugBook(`Book ${newBook.title}  Added With An Id of ${dbNewBook.insertedId} \n`); // Message Appears in terminal
+      }
+      else{
+        // Error Message
+        res.status(400).json({error: `Book ${newBook.title} Not Added`});
+        debugBook(`Book ${newBook.title} Not Added  \n`); // Message Appears in terminal
+      }
   }
-  else{ // ERROR MESSAGE
-    res.status(400).json({message: "Error when adding a New Book"});
+  catch (err) {
+    res.status(500).json({error: err.stack});
   }
-
-
 
 })
-
-// ++++++++++++++++ ADDING A NEW BOOK TO THE ARRAY ++++++++++++++++++
-
+// +++++++++++++++++ ADDING A NEW BOOK +++++++++++++++++ //
 
 
 
 
-// -------------------- DELETING BOOK FROM ARRAY -------------------
 
-router.delete("/:id", (req, res) => {
-  const id = req.params.id; // gets the id from the users url
 
-  // Reads the _ids position in the array 
-  const index = books.findIndex(bookID => bookID._id == id);
 
-  if(index != -1){                                                           // our id we wrote
-    books.splice(index,1); // this is starting at what item and the amount of items (index, 1 item)
-    res.status(200).json({message: `Book ${id} deleted`});
+
+
+// ------------------ DELETE BOOK BY ID ------------------ // http://localhost:3000/api/books/delete/(Book _id Here)
+router.delete("/delete/:id", async (req, res) => {
+
+  // gets the id from the users url
+  const booksId = req.params.id; 
+
+
+  try {
+    // Uses the books id and plugs it into the deleteBook function
+      const dbDeleteBook = await deleteBook(booksId);
+
+      if(dbDeleteBook.deletedCount == 1){
+        // Success Message
+        res.status(200).json({message: `Book ${booksId} Deleted`});
+        debugBook(`Book ${dbDeleteBook.title} Deleted  \n`); // Message Appears in terminal
+      }
+      else{
+        // Error Message
+        res.status(400).json({error: `Book ${booksId} Not Deleted`});
+        debugBook(`Book ${dbDeleteBook.title} Not Deleted  \n`); // Message Appears in terminal
+      }
   }
-  else{
-    res.status(404).json({message: `Book ${id} Not Found`});
+  catch (err) {
+    res.status(500).json({error: err.stack});
   }
-
-
 
 });
 
+// ------------------ DELETE BOOK BY ID ------------------ //
 
-// -------------------- DELETING BOOK FROM ARRAY -------------------
+
+
 
 
 

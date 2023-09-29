@@ -3,14 +3,8 @@
 // I I I I I I I    IMPORTS   I I I I I I I 
 import express from "express";
 
-
 // This will get the book.js file where we get all the different routes
 import { BookRouter } from "./routes/api/book.js";
-
-// This will call in the user.js file using its route called UserRouter
-import { UserRouter } from "./routes/api/user.js";
-
-
 
 
 // dotenv DEBUGGER    create a new .env file and add   DEBUG=app:*
@@ -18,10 +12,10 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 
-
 import debug from "debug";
-//Create a debug channel called Server
-const debugServer = debug("app:Server");
+
+//Create a debug channel called app server
+const debugServer = debug("app:server");
 
 // I I I I I I I    IMPORTS   I I I I I I I 
 
@@ -39,11 +33,6 @@ app.use(express.urlencoded({extended: true}));
 
 // THIS CALLS IN OUR ROUTER SO we can see all of those routes by adding  http://localhost3000/api 
 app.use("/api/books", BookRouter);
-
-// THIS CALLS IN OUR ROUTER SO we can see all of those routes by adding  http://localhost3000/api 
-app.use("/api/users", UserRouter)
-
-
 
 
 
@@ -64,7 +53,16 @@ app.use((err, req, res, next) => {
 
 
 
-
+/* //ALL OF OUR BOOKS
+// An Array of book objects 
+const books = [
+    {"title":"Country Bears, The","author":"Vince Glader","publication_date":"10/25/1907","genre":"mystery","_id":1},
+    {"title":"Secret Things (Choses secrètes)","author":"Betteanne Copley","publication_date":"8/28/1978","genre":"non-fiction","_id":2},
+    {"title":"Fitna","author":"Heall Markham","publication_date":"5/31/1936","genre":"non-fiction","_id":3},
+    {"title":"Words, The","author":"Kelly Benech","publication_date":"11/9/1958","genre":"non-fiction","_id":4},
+    {"title":"Muppet Christmas: Letters to Santa, A","author":"Natala Amar","publication_date":"1/18/1914","genre":"non-fiction","_id":5}
+];
+*/
 
 
 
