@@ -28,10 +28,12 @@ let _db = null;
 async function connect(){
   if(!_db){
     // Replace the placeholder with your Atlas connection string THIS CAN BE FOUND ON MONGODB ATLAS
-    const connectionString = "mongodb+srv://Tony_Cook:Fuggetaboutit55!@cluster0.gzvhh85.mongodb.net/?retryWrites=true&w=majority";
+    //const connectionString = "mongodb+srv://Tony_Cook:Fuggetaboutit55!@cluster0.gzvhh85.mongodb.net/?retryWrites=true&w=majority";
+    const connectionString = process.env.DB_URL;
 
     // Name of the database
-    const dbName = "RetroAmazon";
+    //const dbName = "RetroAmazon";
+    const dbName = process.env.DB_NAME;
 
     // Connects to the database we said
     const client = await MongoClient.connect(connectionString);
