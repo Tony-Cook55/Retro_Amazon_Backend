@@ -113,10 +113,10 @@ router.put("/update/:id", async (req, res) => {
 
   try {
       // Calls the function and uses the users entered id and body params for the values to pass into function
-      const updateBook = await updateBook(bookId, updatedBookFields);
+      const bookUpdated = await updateBook(bookId, updatedBookFields);
 
       // If the book is updated once it will gain a property called modifiedCount if this is 1 its true
-      if(updateBook.modifiedCount == 1){
+      if(bookUpdated.modifiedCount == 1){
         // Success Message
         res.status(200).json({message: `Book ${bookId} updated`});
         debugBook(`Book ${bookId} updated  \n`); // Message Appears in terminal

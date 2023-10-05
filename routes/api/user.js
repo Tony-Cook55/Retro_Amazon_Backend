@@ -16,7 +16,17 @@ const debugUser = debug("app:User"); // Messages will Appear in terminal
 import bcrypt from "bcrypt";
 
 
+// Imports Joi to use the middleware functions we made in validBody()
+import Joi from "joi";
+
+
+// Calls in adding a new user and logging in functions  
 import { addUser, loginUser } from "../../database.js";
+
+
+
+// CALLS IN THE MIDDLEWARE FUNCTION     - JOI
+import { validBody } from "../../middleware/validBody.js"
 
 // I I I I I I I    IMPORTS   I I I I I I I 
 
@@ -28,8 +38,21 @@ const router = express.Router();
 
 
 
+// Step 1 Define the New User Schema    THESE WILL BE THE RULE SET FOR THE INPUTTED DATA
+const newUserSchema = Joi.object({
+  fullName: Joi.string().trim().min(1).max(50).required(),
+  password: Joi.string().trim().min(8).max(50).required(),
+  email: Joi.string().trim().email().required()
+});
+
+
+
+
+
 // +++++++++++++++++ ADDING A NEW USER +++++++++++++++++ //  http://localhost:3000/api/users/add
-router.post("/add", async (req, res) => {
+
+// Calling in our custom middleware function validBody(), then we plug in the rule set schema -> validBody(newUserSchema)
+router.post("/add", validBody(newUserSchema), async (req, res) => {
 
   // Users input for the new user
   const newUser = req.body;
@@ -61,12 +84,15 @@ router.post("/add", async (req, res) => {
 
 
 
-
+const loginUserSchema = Joi.object({
+  password: Joi.string().trim().min(8).max(50).required(),
+  email: Joi.string().trim().email().required()
+})
 
 
 // LLLLLLLLLLLLLLLLLLL USERS LOGIN LLLLLLLLLLLLLLLLLLL //  http://localhost:3000/api/users/login
-
-router.post("/login", async (req, res) => {
+// Calling in our custom middleware function validBody(), then we plug in the rule set schema -> validBody(loginUserSchema)
+router.post("/login", validBody(loginUserSchema), async (req, res) => {
 
   // Users input from the user to login
   const usersFields = req.body;
