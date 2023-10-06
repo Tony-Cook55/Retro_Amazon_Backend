@@ -15,6 +15,18 @@ const debugBook = debug("app:Book"); // Messages will Appear in terminal
 // Imports all the functions from the database.js file 
 import { connect, getBooks, getBookById, updateBook, addBook, deleteBook } from "../../database.js";
 
+
+
+
+// CALLS IN THE MIDDLEWARE FUNCTION     - JOI
+import Joi from "joi";
+
+import { validId } from "../../middleware/validId.js";
+
+import { validBody } from "../../middleware/validBody.js";
+
+
+
 // I I I I I I I    IMPORTS   I I I I I I I 
 
 
@@ -28,7 +40,6 @@ const router = express.Router();
 
 
 // ~~~~~~~~~~~~~~~~ FIND ALL BOOKS ~~~~~~~~~~~~~~~~ // http://localhost:3000/api/books/books-list
-
 //Making a route to see all the books    to see books type   
 router.get("/books-list", async (req, res) => {
 
@@ -62,25 +73,34 @@ router.get("/books-list", async (req, res) => {
 
 
 //!!!!!!!!!!!!!!!!!!  SEARCHING BY _id //!!!!!!!!!!!!!!!!!!   http://localhost:3000/api/books/(_id of book)
-// Making another route Getting a book by their _id
-router.get("/:id", async (req, res) => {   // the :id   makes a param variable that we pass in
+// What ever is in the /:("HERE") you must make it the same as what in validId("HERE")
+router.get("/:id",   validId("id"),   async (req, res) => {   // the :id   makes a param variable that we pass in
+  
+        // 
+        const bookId = req.id;  // We don't need to have .params is due to the validId("id") is using the id from the params in function 
 
   try {
       // were are getting a request with the parameters a user puts for the .id
-      const bookId = req.params.id;  
+      //const bookId = req.params.id;  
 
       // for every bookID return true when our _id is == to the id user enters
       const getBookID = await getBookById(bookId);
 
-      // Success Message
-      res.status(200).json(getBookID);
 
-      debugBook(`Success Got Book's Id: ${bookId} \n`); // Message Appears in terminal
+      // Checking to see if the book is in the database based on id if so success show book
+      if(getBookID){
+        // Success Message
+        res.status(200).json(getBookID);
+        debugBook(`Success Got Book's Id: ${bookId} \n`); // Message Appears in terminal
+      }
+      else{
+        res.status(500).json({Error: `Book Id: ${bookId} Not Found`});
+        debugBook(`Error Book Id: ${bookId} Not Found \n`); // Message Appears in terminal
+      }
   }
   catch (err) {
     // Error Message
     res.status(500).json({error: err.stack});
-    debugBook(`Error Book Id: ${bookId} Not Found \n`); // Message Appears in terminal
   }
 
 });
@@ -95,11 +115,26 @@ router.get("/:id", async (req, res) => {   // the :id   makes a param variable t
 
 
 // uuuuuuuuuuuuuuuuu UPDATE A BOOK uuuuuuuuuuuuuuuuu //   // http://localhost:3000/api/books/update/(_id of book)
+
+
+// THIS IS THE RULES THAT OUR UPDATING FIELDS MUST FOLLOW TO NOT THROW AN ERROR
+const updateBookSchema = Joi.object({
+  isbn: Joi.string().trim().min(14),
+  title: Joi.string().trim().min(1),
+  author:  Joi.string().trim().min(1),
+  genre: Joi.string().valid("Fiction", "Non-fiction", "Drama", "Horror", "Dystopian", "Mystery", "Young Adult", "Magical Realism"),
+  publication_year: Joi.number().min(1900).max(2023),
+  price: Joi.number().min(0),
+  description: Joi.string().trim().min(1),
+});
+
+
 // Update a book by the _id    updates can use a    put    or   post 
-router.put("/update/:id", async (req, res) => {
+// Adding both the validating ID function and the validating body function using the ID entered by user and the schema as a rule set
+router.put("/update/:id",   validId("id"), validBody(updateBookSchema),  async (req, res) => {
 
    // getting the id from the user
-  const bookId = req.params.id;
+  const bookId = req.id;  // We don't need to have .params is due to the validId("id") is using the id from the params in function 
 
   // For this line to work you have to have the body parser thats up top MIDDLEWARE
   const updatedBookFields = req.body;  // An .body is an object in updatedBookFields lets our body read the books id
@@ -145,12 +180,28 @@ router.put("/update/:id", async (req, res) => {
 
 
 
+
+
 // +++++++++++++++++ ADDING A NEW BOOK +++++++++++++++++ //  http://localhost:3000/api/books/add
 
-router.post("/add", async (req, res) => {
+// THIS IS THE RULES THAT OUR ADDING FIELDS MUST FOLLOW TO NOT THROW AN ERROR
+const newBookSchema = Joi.object({
+  isbn: Joi.string().trim().min(14).required(),
+  title: Joi.string().trim().min(1).required(),
+  author:  Joi.string().trim().min(1).required(),
+  genre: Joi.string().valid("Fiction", "Non-fiction", "Drama", "Horror", "Dystopian", "Mystery", "Young Adult", "Magical Realism").required(),
+  publication_year: Joi.number().min(1900).max(2023).required(),
+  price: Joi.number().min(0).required(),
+  description: Joi.string().trim().min(1).required(),
+});
+
+
+
+// This validBody(newBookSchema) will call in the function named validBody then plug in the newBookSchema for us to follow
+router.post("/add", validBody(newBookSchema), async (req, res) => {
   
   // Getting the users data from the body like a form
-  const newBook = req.body; 
+  const newBook = req.body;  // We don't need to have .params is due to the validId("id") is using the id from the params in function 
 
 
     // If a user enters a number for price it changes it to a float not a string
@@ -191,10 +242,10 @@ router.post("/add", async (req, res) => {
 
 
 // ------------------ DELETE BOOK BY ID ------------------ // http://localhost:3000/api/books/delete/(Book _id Here)
-router.delete("/delete/:id", async (req, res) => {
+router.delete("/delete/:bookId",  validId("bookId"), async (req, res) => {
 
   // gets the id from the users url
-  const booksId = req.params.id; 
+  const booksId = req.bookId;// We don't need to have .params is due to the validId("id") is using the id from the params in function 
 
 
   try {

@@ -38,6 +38,12 @@ const router = express.Router();
 
 
 
+
+
+
+// +++++++++++++++++ ADDING A NEW USER +++++++++++++++++ //  http://localhost:3000/api/users/add
+
+
 // Step 1 Define the New User Schema    THESE WILL BE THE RULE SET FOR THE INPUTTED DATA
 const newUserSchema = Joi.object({
   fullName: Joi.string().trim().min(1).max(50).required(),
@@ -46,10 +52,6 @@ const newUserSchema = Joi.object({
 });
 
 
-
-
-
-// +++++++++++++++++ ADDING A NEW USER +++++++++++++++++ //  http://localhost:3000/api/users/add
 
 // Calling in our custom middleware function validBody(), then we plug in the rule set schema -> validBody(newUserSchema)
 router.post("/add", validBody(newUserSchema), async (req, res) => {
@@ -84,13 +86,22 @@ router.post("/add", validBody(newUserSchema), async (req, res) => {
 
 
 
+
+
+
+
+
+// LLLLLLLLLLLLLLLLLLL USERS LOGIN LLLLLLLLLLLLLLLLLLL //  http://localhost:3000/api/users/login
+
+
+
+// Step 1 Define the Login User Schema    THESE WILL BE THE RULE SET FOR THE INPUTTED DATA
 const loginUserSchema = Joi.object({
   password: Joi.string().trim().min(8).max(50).required(),
   email: Joi.string().trim().email().required()
 })
 
 
-// LLLLLLLLLLLLLLLLLLL USERS LOGIN LLLLLLLLLLLLLLLLLLL //  http://localhost:3000/api/users/login
 // Calling in our custom middleware function validBody(), then we plug in the rule set schema -> validBody(loginUserSchema)
 router.post("/login", validBody(loginUserSchema), async (req, res) => {
 
