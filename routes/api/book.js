@@ -43,19 +43,126 @@ const router = express.Router();
 //Making a route to see all the books    to see books type   
 router.get("/books-list", async (req, res) => {
 
+
+
+  // ()()()() WAYS TO SEND INFO AND SEE INFO ()()()() //
+
+  // req.body --- Comes from the HTML Form. Typically the name attribute of the controls
+  // Ex. --- <input type="text" name="txtEmail">
+  // req.body.txtEmail
+  
+  
+  // req.params --- Variable that's part of the URL
+  // http://localhost:3000/api/books/books-list
+  // req.params.id
+
+
+  // req.query --- A query string is part of the URL that starts with a ?
+
+  // ()()()() WAYS TO SEND INFO AND SEE INFO ()()()() //
+
+
   try {
 
-    // Connects to the DB Using the connect Function
-    const dbConnected = await connect();
+    // oooooooooo OLD SEARCH BY ALL BOOKS oooooooooo //
+    // // Connects to the DB Using the connect Function
+    // const dbConnected = await connect();
 
-    // Calls in the getBooks() Function finding all books
-    const allBooks = await getBooks();
+    // // Calls in the getBooks() Function finding all books
+    // const allBooks = await getBooks();
+
+    // // Success Message
+    // res.status(200).json(allBooks);
+
+
+
+    // Get the Key's from the params query in postman    //pageSize is how many pages you want, pageNumber is the specific page you want
+    let {keywords, genre, minPrice, maxPrice, sortBy, pageSize, pageNumber} = req.query;
+
+    // This stage of the aggregation pipeline is the FILTER
+    const match = {};
+
+    // By Default we will sort by the author
+    let sort = {author:1};  // The 1 is ascending  ~  -1 is descending order
+
+
+    // skip & limit stages together help create pagination for the search results
+    // skip will go ahead and skip the first (Enter your #) documents
+    // limit will limit the number of documents returned
+
+
+
+    // If there are keywords that match do the following
+    if(keywords){
+      match.$text = {$search: keywords};
+    }
+
+
+    // Makes users input into an int or just have 50 pages shown
+    pageSize = parseInt(pageSize) || 50;
+    // Make the users input into an int or just go to page 1
+    pageNumber = parseInt(pageNumber) || 1;
+
+    // When the user goes on another page such as page 2 it the DB needs to not show things on the first page
+    const skip = (pageNumber - 1) * pageSize;
+    // This is the amount of pages shown at a time
+    const limit = pageSize;
+
+
+
+    if(genre){
+      match.genre = {$eq: genre};
+    }
+
+
+
+    if(minPrice && maxPrice){
+      match.price = {$gte: parseFloat(minPrice), $lte: parseFloat(maxPrice)}
+    }
+    else if(minPrice){
+      match.price = {$gte: parseFloat(minPrice)}
+    }
+    else if(maxPrice){
+      match.price = {$lte: parseFloat(maxPrice)}
+    }
+
+
+  // If the words below are in sortBy it will make sort == and Overwrite that item instead of the default or the last one 
+  switch(sortBy){
+    // If the user adds price in the sortBy it will then switch and sort that and OVERWRITE THE last thing
+    case "price": sort = {price : 1}; break;
+
+    // If year is entered then it will make the publication_year be in ascending order
+    case "year": sort = {publication_year : 1}; break;
+  }
+
+
+    // This is going to match whats in the param query
+    const pipeline = [
+      {$match: match},
+      {$sort: sort}, // Calls in the sort from the top which by default has the Author ascending
+
+
+      // This is the page Number outputs that skips the amount of pages and the limit of pages
+      {$skip: skip},
+      {$limit: limit},
+    ]
+
+
+    // Connects to our database to allow us to still search
+    const db = await connect();
+
+    // This 
+    const cursor = await db.collection('Book').aggregate(pipeline);
+
+    // Shows the results in an array 
+    const foundBook = await cursor.toArray();
 
     // Success Message
-    res.status(200).json(allBooks);
+    res.status(200).json(foundBook);
 
-    debugBook("Success Got all the Books \n"); // Message Appears in terminal
 
+    debugBook(`Success Got all the Books, The Query string is ${JSON.stringify(req.query)}`); // Message Appears in terminal
   } 
   catch (err) { // Error Message
     res.status(500).json({error: err.stack});
