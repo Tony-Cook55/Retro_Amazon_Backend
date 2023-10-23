@@ -24,6 +24,12 @@ const debugDatabase = debug("app:Database");
 let _db = null;
 
 
+
+// Allows us to store the users Id and generate it
+const newId = (str) => new ObjectId(str);
+
+
+
 // $$$$$$$$$$$$$$$ CALLING IN OUR DATABASE $$$$$$$$$$$$$$$//
 async function connect(){
   if(!_db){
@@ -177,6 +183,22 @@ async function deleteBook(booksId){
 
 
 
+
+// ~~~~~~~~~~~~~~~~ FIND ALL USERS ~~~~~~~~~~~~~~~~ //
+async function getUsers(){
+  // Calling the connect from above method to get the DB
+  const dbConnected = await connect();
+
+  const allUsers = await dbConnected.collection("User").find().toArray();
+
+  //Returns All Users to postman
+  return allUsers;
+}
+// ~~~~~~~~~~~~~~~~ FIND ALL USERS ~~~~~~~~~~~~~~~~ //
+
+
+
+
 // +++++++++++++++++ ADDING A NEW USER +++++++++++++++++ //
 
 async function addUser(user){
@@ -235,11 +257,13 @@ async function loginUser(user){
 ping();
 
 
+export {connect, ping, newId}
+
 // EXPORTS ALL THE BOOK FUNCTIONS
-export {connect, ping, getBooks, getBookById, addBook, updateBook, deleteBook}
+export {getBooks, getBookById, addBook, updateBook, deleteBook}
 
 
 // EXPORTS ALL THE USER FUNCTIONS
-export {addUser, loginUser}
+export {getUsers, addUser, loginUser}
 
 

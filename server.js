@@ -18,10 +18,22 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 
+// ccc COOKIES ccc //
+// This imports the cookie parser that allows us to write code to allow to check cookies to make sessions
+import cookieParser from "cookie-parser";
+
+// This is the tokens that is assigned to a user when successfully logged in
+// ccc COOKIES ccc //
+
 
 import debug from "debug";
 //Create a debug channel called Server
 const debugServer = debug("app:Server");
+
+
+// THIS IS GLOBAL MIDDLEWARE THAT ALLOWS US TO USE req.auth to make sure users cant access site if not logged in
+import { authMiddleware } from "@merlin4/express-auth";
+
 
 // I I I I I I I    IMPORTS   I I I I I I I 
 
@@ -33,8 +45,26 @@ const app = express();
 
 
 
+// mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm MIDDLEWARE mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm // 
+
 //MIDDLEWARE THAT allows form data from a users input to UPDATE a book by _id   .use is global
 app.use(express.urlencoded({extended: true}));
+
+
+// ccc COOKIES ccc //
+// Allows us to actually create cookies
+app.use(cookieParser());
+
+
+// Reads from our cookie and if the user is authenticated it will put the users info inside the cookie
+// This is a middleware that will VALIDATE AND CHECK/look inside our created cookie and generate a req.auth and place the token in their
+app.use(authMiddleware(process.env.JWT_SECRET, 'authToken',
+    {
+    httpOnly: true,
+    maxAge: 1000*60*60
+    }
+));
+// ccc COOKIES ccc //
 
 
 // THIS CALLS IN OUR ROUTER SO we can see all of those routes by adding  http://localhost3000/api 
@@ -43,6 +73,7 @@ app.use("/api/books", BookRouter);
 // THIS CALLS IN OUR ROUTER SO we can see all of those routes by adding  http://localhost3000/api 
 app.use("/api/users", UserRouter)
 
+// mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm MIDDLEWARE mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm // 
 
 
 

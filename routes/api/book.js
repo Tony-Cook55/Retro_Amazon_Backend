@@ -62,6 +62,17 @@ router.get("/books-list", async (req, res) => {
   // ()()()() WAYS TO SEND INFO AND SEE INFO ()()()() //
 
 
+
+
+  // If the user is not logged in and the cookie dose not have an auth token then req.auth == null thus, user not logged in
+  if(!req.auth){
+    res.status(401).json({Authorization_Error: "Please Log In To See all Books"});
+    return
+  }
+
+
+
+
   try {
 
     // oooooooooo OLD SEARCH BY ALL BOOKS oooooooooo //
@@ -160,6 +171,10 @@ router.get("/books-list", async (req, res) => {
 
     // Success Message
     res.status(200).json(foundBook);
+
+
+    // JUST SHOWS IF USER IS LOGGED IN OR NOT
+    debugBook(`The req.auth property is: ${JSON.stringify(req.auth)}`);
 
 
     debugBook(`Success Got all the Books, The Query string is ${JSON.stringify(req.query)}`); // Message Appears in terminal
