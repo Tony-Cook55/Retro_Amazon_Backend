@@ -69,6 +69,33 @@ async function ping(){
 
 
 
+
+
+
+
+
+
+// eeeeeeeeeeeeeeeeeeeeeeeee EDITS MADE DURING AN UPDATE eeeeeeeeeeeeeeeeeeeeeeeee //
+async function saveEdit(editMade){
+  const db = await connect();
+
+
+  const editsMade = await db.collection("Edits").insertOne(editMade);
+
+  return editsMade;
+}
+// eeeeeeeeeeeeeeeeeeeeeeeee EDITS MADE DURING AN UPDATE eeeeeeeeeeeeeeeeeeeeeeeee //
+
+
+
+
+
+
+
+
+
+
+
 // ******************************* BOOKS ********************************** //
 
 
@@ -199,6 +226,27 @@ async function getUsers(){
 
 
 
+
+
+
+// !!!!!!!!!!!!!!! SEARCHING FOR A USER BY ID !!!!!!!!!!!!!!! //
+async function getUserById(usersId){
+
+  const dbConnected = await connect();
+
+  // Finding a user based on their Id
+  const foundUserId = await dbConnected.collection("User").findOne({_id: usersId});
+
+  return foundUserId;
+}
+// !!!!!!!!!!!!!!! SEARCHING FOR A USER BY ID !!!!!!!!!!!!!!! //
+
+
+
+
+
+
+
 // +++++++++++++++++ ADDING A NEW USER +++++++++++++++++ //
 
 async function addUser(user){
@@ -241,6 +289,32 @@ async function loginUser(user){
 
 
 
+// uuuuuuuuuuuuuuuuu UPDATE A USER uuuuuuuuuuuuuuuuu //
+async function updateUser(getUser/*, updatedUserFields*/){
+
+  const dbConnected = await connect();
+
+
+  // This date is for searching purposes
+  //updatedUserFields.lastUpdated = new Date();
+
+  // Here we create a new item in the Database called lastUpdated and we set the time it was made at for its value
+  //updatedUserFields.userLastUpdated = new Date().toLocaleString('en-US');
+
+
+  // gets the inputted id and the input for all the fields due to the:  ... gets all the values from the fields
+  const userUpdated = await dbConnected.collection("User").updateOne({_id: getUser._id},{$set:{...getUser}});
+
+  return userUpdated;
+}
+// uuuuuuuuuuuuuuuuu UPDATE A USER uuuuuuuuuuuuuuuuu //
+
+
+
+
+
+
+
 
 
 
@@ -264,6 +338,10 @@ export {getBooks, getBookById, addBook, updateBook, deleteBook}
 
 
 // EXPORTS ALL THE USER FUNCTIONS
-export {getUsers, addUser, loginUser}
+export {getUsers, getUserById, addUser, loginUser, updateUser}
+
+
+
+export {saveEdit}
 
 

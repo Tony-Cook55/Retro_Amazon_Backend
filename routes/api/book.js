@@ -12,6 +12,10 @@ import debug from "debug";
 const debugBook = debug("app:Book"); // Messages will Appear in terminal
 
 
+// This is a method that allows a user to NEED TO BE LOGGED IN
+import { isLoggedIn } from "@merlin4/express-auth";
+
+
 // Imports all the functions from the database.js file 
 import { connect, getBooks, getBookById, updateBook, addBook, deleteBook } from "../../database.js";
 
@@ -41,7 +45,7 @@ const router = express.Router();
 
 // ~~~~~~~~~~~~~~~~ FIND ALL BOOKS ~~~~~~~~~~~~~~~~ // http://localhost:3000/api/books/books-list
 //Making a route to see all the books    to see books type   
-router.get("/books-list", async (req, res) => {
+router.get("/books-list",   isLoggedIn(),   async (req, res) => {
 
 
 
@@ -196,7 +200,7 @@ router.get("/books-list", async (req, res) => {
 
 //!!!!!!!!!!!!!!!!!!  SEARCHING BY _id //!!!!!!!!!!!!!!!!!!   http://localhost:3000/api/books/(_id of book)
 // What ever is in the /:("HERE") you must make it the same as what in validId("HERE")
-router.get("/:id",   validId("id"),   async (req, res) => {   // the :id   makes a param variable that we pass in
+router.get("/:id",  isLoggedIn(),   validId("id"),   async (req, res) => {   // the :id   makes a param variable that we pass in
   
         // 
         const bookId = req.id;  // We don't need to have .params is due to the validId("id") is using the id from the params in function 
@@ -253,7 +257,7 @@ const updateBookSchema = Joi.object({
 
 // Update a book by the _id    updates can use a    put    or   post 
 // Adding both the validating ID function and the validating body function using the ID entered by user and the schema as a rule set
-router.put("/update/:id",   validId("id"), validBody(updateBookSchema),  async (req, res) => {
+router.put("/update/:id",  isLoggedIn(),   validId("id"), validBody(updateBookSchema),  async (req, res) => {
 
    // getting the id from the user
   const bookId = req.id;  // We don't need to have .params is due to the validId("id") is using the id from the params in function 
@@ -320,7 +324,7 @@ const newBookSchema = Joi.object({
 
 
 // This validBody(newBookSchema) will call in the function named validBody then plug in the newBookSchema for us to follow
-router.post("/add", validBody(newBookSchema), async (req, res) => {
+router.post("/add",   isLoggedIn(),  validBody(newBookSchema), async (req, res) => {
   
   // Getting the users data from the body like a form
   const newBook = req.body;  // We don't need to have .params is due to the validId("id") is using the id from the params in function 
@@ -364,7 +368,7 @@ router.post("/add", validBody(newBookSchema), async (req, res) => {
 
 
 // ------------------ DELETE BOOK BY ID ------------------ // http://localhost:3000/api/books/delete/(Book _id Here)
-router.delete("/delete/:bookId",  validId("bookId"), async (req, res) => {
+router.delete("/delete/:bookId",   isLoggedIn(),  validId("bookId"), async (req, res) => {
 
   // gets the id from the users url
   const booksId = req.bookId;// We don't need to have .params is due to the validId("id") is using the id from the params in function 

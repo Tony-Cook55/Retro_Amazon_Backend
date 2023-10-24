@@ -23,6 +23,10 @@ dotenv.config();
 import cookieParser from "cookie-parser";
 
 // This is the tokens that is assigned to a user when successfully logged in
+
+
+// THIS IS GLOBAL MIDDLEWARE THAT ALLOWS US TO USE req.auth to make sure users cant access site if not logged in
+import { authMiddleware } from "@merlin4/express-auth"
 // ccc COOKIES ccc //
 
 
@@ -30,9 +34,6 @@ import debug from "debug";
 //Create a debug channel called Server
 const debugServer = debug("app:Server");
 
-
-// THIS IS GLOBAL MIDDLEWARE THAT ALLOWS US TO USE req.auth to make sure users cant access site if not logged in
-import { authMiddleware } from "@merlin4/express-auth";
 
 
 // I I I I I I I    IMPORTS   I I I I I I I 
@@ -87,8 +88,8 @@ app.use((req, res) => {                            // shows the url user typed
 
 // Handles Sever Exceptions to keep my server from crashing
 app.use((err, req, res, next) => {
-  debugServer(err.stack);
-  res.stack(500).json({error: err.stack});
+  //debugServer(err.stack);
+  res.status(err.status).json({Sever_Error: err.message});
 });
 // --------------------- ERROR HANDLING ---------------------
 
