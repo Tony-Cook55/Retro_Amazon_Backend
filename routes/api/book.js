@@ -16,6 +16,10 @@ const debugBook = debug("app:Book"); // Messages will Appear in terminal
 import { isLoggedIn } from "@merlin4/express-auth";
 
 
+//This calls in a function from merlin that will send an error if a users Role does not match the permissions we gave that role
+import { hasPermission } from "@merlin4/express-auth";
+
+
 // Imports all the functions from the database.js file 
 import { connect, getBooks, getBookById, updateBook, addBook, deleteBook } from "../../database.js";
 
@@ -28,6 +32,9 @@ import Joi from "joi";
 import { validId } from "../../middleware/validId.js";
 
 import { validBody } from "../../middleware/validBody.js";
+
+
+
 
 
 
@@ -45,7 +52,7 @@ const router = express.Router();
 
 // ~~~~~~~~~~~~~~~~ FIND ALL BOOKS ~~~~~~~~~~~~~~~~ // http://localhost:3000/api/books/books-list
 //Making a route to see all the books    to see books type   
-router.get("/books-list",   isLoggedIn(),   async (req, res) => {
+router.get("/books-list",   isLoggedIn(),     hasPermission("canListBooks"),   async (req, res) => {
 
 
 

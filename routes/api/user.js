@@ -29,17 +29,31 @@ import { isLoggedIn } from "@merlin4/express-auth";
 // ccccc 🍪COOKIES & AUTH TOKEN 🍪 ccccc //
 
 
+
+// aaaaaaaaaaaaaaaa AUTHORIZE USERS aaaaaaaaaaaaaaaa//
+// USED FOR AUTHORIZATION this will call in the ability to check a users role and see the permissions they have
+import { fetchRoles} from "@merlin4/express-auth";
+
+
+// This will 
+import { mergePermissions } from "@merlin4/express-auth";
+
+
+//This calls in a function from merlin that will send an error if a users Role does not match the permissions we gave that role in the Collection
+import { hasPermission } from "@merlin4/express-auth";
+
+
+// Calls in the ability to look in the Role collection and see if it matches the users role
+import { findRoleByName } from "../../database.js";
+// aaaaaaaaaaaaaaaa AUTHORIZE USERS aaaaaaaaaaaaaaaa//
+
+
 // Imports Joi to use the middleware functions we made in validBody()
 import Joi from "joi";
 
 
-
-
-
-
 // Calls in adding a new user and logging in functions  
 import { getUsers, getUserById, addUser, loginUser, updateUser,     saveEdit } from "../../database.js";
-
 
 
 // CALLS IN THE MIDDLEWARE FUNCTION     - JOI
@@ -66,6 +80,23 @@ async function issueAuthToken(user){
 
   // Sets the time in which the token will expire
   const options = {expiresIn: "1h"}
+
+
+
+    // rrrrrrrr    ROLE   rrrrrrrr //
+      // This will get the logged in user and their role then call our function findRoleByName and plug in that role
+      const roles = await fetchRoles(user, role => findRoleByName(role));
+
+      // This will merge the roles the user has and the Roles we have in Collection to give them permissions of True
+      const permissions = mergePermissions(user,roles);
+
+      // Puts the permissions the user has and puts it into the payload to then be passed into the users cookie to signify they have access of true
+      payload.permissions = permissions;
+
+      debugUser(`The users permissions are ${permissions}`);
+    // rrrrrrrr    ROLE   rrrrrrrr //
+
+
 
   // makes the token putting all the variables in
   const authToken = jwt.sign(payload, secret, options);
@@ -94,7 +125,7 @@ function issueAuthCookie(res, authToken){
 
 
 // ~~~~~~~~~~~~~~~~ FIND ALL USERS ~~~~~~~~~~~~~~~~ http://localhost:3000/api/users/list
-router.get('/list',   isLoggedIn(),  async (req, res) => {
+router.get('/list',   isLoggedIn(),       async (req, res) => {
 
     // Calls in the getBooks() Function finding all books
     const allUsers = await getUsers();

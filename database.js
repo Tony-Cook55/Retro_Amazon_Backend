@@ -195,6 +195,24 @@ async function deleteBook(booksId){
 
 
 
+// rrrrrrrrrrrrrrrrrrrrrrrrrrrrr    ROLE   rrrrrrrrrrrrrrrrrrrrrrrrrrrrr //
+async function findRoleByName(roleName){
+  const db = await connect();
+
+  const findRole = await db.collection("Role").findOne({name:roleName})
+
+  return findRole;
+}
+
+export{
+  findRoleByName
+}
+// rrrrrrrrrrrrrrrrrrrrrrrrrrrrr    ROLE   rrrrrrrrrrrrrrrrrrrrrrrrrrrrr //
+
+
+
+
+
 
 
 
@@ -253,7 +271,7 @@ async function addUser(user){
   const dbConnected = await connect();
 
   // Giving new users a default role as a customer
-  user.role = ["customer"];
+  user.role = ["Customer"];
 
   const newUser = await dbConnected.collection("User").insertOne(user);
 
