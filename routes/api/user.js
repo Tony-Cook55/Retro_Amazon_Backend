@@ -239,7 +239,7 @@ router.post("/login", validBody(loginUserSchema), async (req, res) => {
           // ccc COOKIES ccc //
 
       // Success Message
-      res.status(200).json(`Welcome ${usersLoggedIn.fullName} You Are Successfully Logged In. Your Auth Token is ${authToken}`);
+      res.status(200).json({Success: `Welcome ${usersLoggedIn.fullName} You Are Successfully Logged In.`, AuthToken: `Your Auth Token is ${authToken}`});
       debugUser(`Welcome ${usersLoggedIn.fullName} You Are Successfully Logged In`); // Message Appears in terminal
   }
   else{

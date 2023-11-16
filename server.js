@@ -36,14 +36,17 @@ const debugServer = debug("app:Server");
 
 
 
-// I I I I I I I    IMPORTS   I I I I I I I 
+// ASDASD THIS IS NEEDED TO ALLOW FRONT END ACCESS TO THE BACKEND ASDASD //
+import cors from "cors";
+
+
+// I I I I I I I    IMPORTS   I I I I I I I //
 
 
 
 
 // Declares our express app
 const app = express();
-
 
 
 // mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm MIDDLEWARE mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm // 
@@ -68,11 +71,39 @@ app.use(authMiddleware(process.env.JWT_SECRET, 'authToken',
 // ccc COOKIES ccc //
 
 
+
+/* ffffffffffffffff FOR FRONT END ffffffffffffffff 
+    1. npm i cors
+    2. import cors from "cors";
+
+    / Add this into the middleware ABOVE my routers in server.js   This --> app.use("/api/books", BookRouter);
+    3 app.use(cors());
+
+    / THIS ACCEPTS JSON DATA IN THE BODY OF THE REQUEST FROM THE CLIENT ADD UNDER  app.use(cors());
+    4. app.use(express.json()); 
+*/
+
+// asdasd THIS IS NEEDED TO ALLOW FRONT END ACCESS TO THE BACKEND asdasd //
+app.use(cors(
+  {
+  origin: "http://localhost:5173",
+  credentials: true
+  }
+)); // cors is making sure the front end domain and the backend domain are compatible
+
+// asdasd THIS ACCEPTS JSON DATA IN THE BODY OF THE REQUEST FROM THE CLIENT
+app.use(express.json()); 
+
+/* ffffffffffffffff FOR FRONT END ffffffffffffffff */
+
+
+
 // THIS CALLS IN OUR ROUTER SO we can see all of those routes by adding  http://localhost3000/api 
 app.use("/api/books", BookRouter);
 
 // THIS CALLS IN OUR ROUTER SO we can see all of those routes by adding  http://localhost3000/api 
 app.use("/api/users", UserRouter)
+
 
 // mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm MIDDLEWARE mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm // 
 

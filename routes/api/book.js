@@ -48,11 +48,11 @@ const router = express.Router();
 
 
 
-
+//   isLoggedIn(),     hasPermission("canListBooks"),  asdasdasasd
 
 // ~~~~~~~~~~~~~~~~ FIND ALL BOOKS ~~~~~~~~~~~~~~~~ // http://localhost:3000/api/books/books-list
 //Making a route to see all the books    to see books type   
-router.get("/books-list",   isLoggedIn(),     hasPermission("canListBooks"),   async (req, res) => {
+router.get("/books-list",   isLoggedIn(),     hasPermission("canListBooks"),  async (req, res) => {
 
 
 
@@ -76,10 +76,12 @@ router.get("/books-list",   isLoggedIn(),     hasPermission("canListBooks"),   a
 
 
   // If the user is not logged in and the cookie dose not have an auth token then req.auth == null thus, user not logged in
+  /*
   if(!req.auth){
     res.status(401).json({Authorization_Error: "Please Log In To See all Books"});
     return
   }
+  */
 
 
 
