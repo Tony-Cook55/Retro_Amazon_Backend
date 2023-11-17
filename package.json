@@ -10,7 +10,7 @@
     "//": "NEW RUN SCRIPTS ABOVE ++++",
     "start": "node server.js",
     "nodemon": "nodemon server.js",
-    "start-dev": "nodemon -r dotenv/config server.js"
+    "dev": "nodemon -r dotenv/config server.js"
   },
   "repository": {
     "type": "git",

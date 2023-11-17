@@ -209,7 +209,6 @@ router.post("/add", validBody(newUserSchema), async (req, res) => {
 // LLLLLLLLLLLLLLLLLLL USERS LOGIN LLLLLLLLLLLLLLLLLLL //  http://localhost:3000/api/users/login
 
 
-
 // Step 1 Define the Login User Schema    THESE WILL BE THE RULE SET FOR THE INPUTTED DATA
 const loginUserSchema = Joi.object({
   password: Joi.string().trim().min(8).max(50).required(),
@@ -238,8 +237,10 @@ router.post("/login", validBody(loginUserSchema), async (req, res) => {
           issueAuthCookie(res, authToken);
           // ccc COOKIES ccc //
 
-      // Success Message
-      res.status(200).json({Success: `Welcome ${usersLoggedIn.fullName} You Are Successfully Logged In.`, AuthToken: `Your Auth Token is ${authToken}`});
+      // Success Message                                                                                                                                    
+      res.status(200).json({Success: `Welcome ${usersLoggedIn.fullName} You Are Successfully Logged In.`, AuthToken: `Your Auth Token is ${authToken}`,
+      // fullname ADDED THIS TO THE MESSAGE TO ALLOW US TO CALL IT IN ON LOG IN TO SAVE IN NAVBAR
+      fullName: usersLoggedIn.fullName});
       debugUser(`Welcome ${usersLoggedIn.fullName} You Are Successfully Logged In`); // Message Appears in terminal
   }
   else{
@@ -250,6 +251,20 @@ router.post("/login", validBody(loginUserSchema), async (req, res) => {
 
 });
 // LLLLLLLLLLLLLLLLLLL USERS LOGIN LLLLLLLLLLLLLLLLLLL // 
+
+
+
+
+
+// LOLOLOLOLOLOLOLOL  USER LOGS OUT  LOLOLOLOLOLOLOLOL //
+router.post("/logout", isLoggedIn(), async (req,res) => {
+  res.clearCookie("authToken");
+  res.status(200).json({message: "You Have Been Logged Out"});
+});
+// LOLOLOLOLOLOLOLOL  USER LOGS OUT  LOLOLOLOLOLOLOLOL //
+
+
+
 
 
 

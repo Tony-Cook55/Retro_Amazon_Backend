@@ -377,7 +377,7 @@ router.post("/add",   isLoggedIn(),  validBody(newBookSchema), async (req, res) 
 
 
 // ------------------ DELETE BOOK BY ID ------------------ // http://localhost:3000/api/books/delete/(Book _id Here)
-router.delete("/delete/:bookId",   isLoggedIn(),  validId("bookId"), async (req, res) => {
+router.delete("/delete/:bookId",   isLoggedIn(),  hasPermission("canDeleteBook"),  validId("bookId"), async (req, res) => {
 
   // gets the id from the users url
   const booksId = req.bookId;// We don't need to have .params is due to the validId("id") is using the id from the params in function 
