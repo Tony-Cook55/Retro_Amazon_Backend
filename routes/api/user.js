@@ -245,7 +245,7 @@ router.post("/login", validBody(loginUserSchema), async (req, res) => {
   }
   else{
     // Error Message
-    res.status(400).json({error: "Email or Password Incorrect"});
+    res.status(400).json("Email or Password Incorrect");
     debugUser(`Email or Password Incorrect`); // Message Appears in terminal
   }
 
