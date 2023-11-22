@@ -238,9 +238,13 @@ router.post("/login", validBody(loginUserSchema), async (req, res) => {
           // ccc COOKIES ccc //
 
       // Success Message                                                                                                                                    
-      res.status(200).json({Success: `Welcome ${usersLoggedIn.fullName} You Are Successfully Logged In.`, AuthToken: `Your Auth Token is ${authToken}`,
+      res.status(200).json({Success: `Welcome ${usersLoggedIn.fullName} You Are Successfully Logged In.`,
+      AuthToken: `Your Auth Token is ${authToken}`,
       // fullname ADDED THIS TO THE MESSAGE TO ALLOW US TO CALL IT IN ON LOG IN TO SAVE IN NAVBAR
-      fullName: usersLoggedIn.fullName});
+      fullName: usersLoggedIn.fullName,
+      // rolesa This sends the roles in the message to be called in to check the users permissions
+      roles: `${usersLoggedIn.fullName} Has The Roles of ${usersLoggedIn.role}`});
+
       debugUser(`Welcome ${usersLoggedIn.fullName} You Are Successfully Logged In`); // Message Appears in terminal
   }
   else{

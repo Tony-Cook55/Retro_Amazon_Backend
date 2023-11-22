@@ -254,7 +254,7 @@ router.get("/:id",  isLoggedIn(),   validId("id"),   async (req, res) => {   // 
 
 // THIS IS THE RULES THAT OUR UPDATING FIELDS MUST FOLLOW TO NOT THROW AN ERROR
 const updateBookSchema = Joi.object({
-  isbn: Joi.string().trim().min(14),
+  isbn: Joi.string().trim().min(8),
   title: Joi.string().trim().min(1),
   author:  Joi.string().trim().min(1),
   genre: Joi.string().valid("Fiction", "Non-fiction", "Drama", "Horror", "Dystopian", "Mystery", "Young Adult", "Magical Realism"),
@@ -266,7 +266,7 @@ const updateBookSchema = Joi.object({
 
 // Update a book by the _id    updates can use a    put    or   post 
 // Adding both the validating ID function and the validating body function using the ID entered by user and the schema as a rule set
-router.put("/update/:id",  isLoggedIn(),   validId("id"), validBody(updateBookSchema),  async (req, res) => {
+router.put("/update/:id",  isLoggedIn(),   validId("id"), hasPermission("canUpdateBook"), validBody(updateBookSchema),  async (req, res) => {
 
    // getting the id from the user
   const bookId = req.id;  // We don't need to have .params is due to the validId("id") is using the id from the params in function 
@@ -293,7 +293,7 @@ router.put("/update/:id",  isLoggedIn(),   validId("id"), validBody(updateBookSc
       }
       else{
         // Error Message
-        res.status(400).json({error: `Book ${bookId} Not Found`});
+        res.status(400).json({error: `Please Make Changes To Be Update Book ${bookId}`});
         debugBook(`Book ${bookId} Not Found  \n`); // Message Appears in terminal
       }
   } 
