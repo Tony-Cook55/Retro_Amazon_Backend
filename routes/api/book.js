@@ -180,10 +180,13 @@ router.get("/books-list",   isLoggedIn(),     hasPermission("canListBooks"),  as
     const cursor = await db.collection('Book').aggregate(pipeline);
 
     // Shows the results in an array 
-    const foundBook = await cursor.toArray();
+    const books = await cursor.toArray();
 
-    // Success Message
-    res.status(200).json(foundBook);
+    // Shows the amount of items in the collection that match the searched results
+    const totalCount = await db.collection("Book").countDocuments(match);
+
+    // Success Message sends back the books and the number of them NEW asddsa
+    res.status(200).json({books, totalCount});
 
 
     // JUST SHOWS IF USER IS LOGGED IN OR NOT
